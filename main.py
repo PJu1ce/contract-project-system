@@ -1,86 +1,72 @@
-from typing import Iterable
-
-from sqlalchemy import create_engine, select, update
-from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 import config
-from models import Base, Project, Contract
-from datetime import date
-
+from commands import *
+from models import Base
 
 engine = create_engine(url=config.SQLALCHEMY_URL,
                        echo=config.SQLALCHEMY_ECHO,)
 
 
-def create_project(session: Session, title: str) -> Project:
-    project = Project(
-        title=title,
-    )
-    session.add(project)
-
-    session.commit()
-
-    return project
-
-
-def create_contract(session: Session, title: str) -> Contract:
-    contract = Contract(
-        title=title,
-    )
-    session.add(contract)
-
-    session.commit()
-
-    return contract
-
-
-def fetch_contract(session: Session, id: int) -> Contract | None:
-    stmt = select(Contract).where(Contract.id == id)
-    contract: Contract | None = session.execute(stmt).scalar_one_or_none()
-    return contract
-
-
-def fetch_all_contracts(session: Session):
-    contracts: Iterable[Contract] = session.scalars(select(Contract))
-    for contract in contracts:
-        print(f'[{contract.id}] {contract.title}')
-
-
-def fetch_all_projects(session: Session):
-    projects: Iterable[Project] = session.scalars(select(Project))
-    for project in projects:
-        print(f'[{project.id}] {project.title}')
-
-
-def confirm_contract(session: Session, id: int) -> None:
-    contract = session.query(Contract).filter_by(id=id).scalar()
-    contract.status = 'Активен'
-    if not contract.signed:
-        contract.signed = date.today()
-    session.commit()
-
-
-def finalize_contract(session: Session, id: int) -> None:
-    contract = session.query(Contract).filter_by(id=id).scalar()
-    contract.status = 'Завершён'
-    session.commit()
-
-
-# def add_contract_to_project(session: Session) -> None:
-#     fetch_all_projects(session)
-
-
-
 def main():
     Base.metadata.create_all(bind=engine)
+    state = 'Меню'
 
     with Session(engine) as session:
         
         while True:
             try:
-                pass
+                match state:
+                     
+                    case 'Меню':
+                        act = action(state)
+                        state = menu[state][act]
+                    
+                    case 'Просмотр проектов и договоров':
+                        fetch_all_entities(session)
+                        state = 'Меню'
+
+                    case 'Проект':
+                        act = action(state)
+                        state = menu[state][act]
+
+                    case 'Создать проект':
+                        create_project(session)
+                        state = 'Меню'
+
+                    case 'Договор':
+                        act = action(state)
+                        state = menu[state][act]
+
+                    case 'Добавить договор в проект':
+                        add_contract_to_project(session)
+                        state = 'Меню'
+
+                    case 'Создать договор':
+                        create_contract(session)
+                        state = 'Меню'
+
+                    case 'Подтвердить договор':
+                        fetch_all_contracts(session)
+                        confirm_contract(session)
+                        state = 'Меню'
+
+                    case 'Завершить договор':
+                        fetch_all_contracts(session)
+                        finalize_contract(session)
+                        state = 'Меню'
+
+                    case 'Завершить договор с выбором проекта':
+                        finalize_contract_from_project(session)
+                        state = 'Меню'
+
+                    case 'Завершить работу':
+                        break
+                    
             except:
                 pass
+                
 
         
 if __name__ == '__main__':
