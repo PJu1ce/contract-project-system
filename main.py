@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 import config
+
 from commands import *
 from models import Base
 
@@ -64,9 +65,14 @@ def main():
                     case 'Завершить работу':
                         break
                     
-            except:
-                pass
-                
+            except ValueError:
+                print('Ввод должен быть целым числом!')
+                state = 'Меню'
+            except AttributeError:
+                print('Введён несуществующий ID!')
+                state = 'Меню'
+            except KeyError:
+                print('Выбрано несуществующее действие!')
 
         
 if __name__ == '__main__':
