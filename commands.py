@@ -10,7 +10,7 @@ from menu import menu
 from models import Project, Contract
 
 
-def show_menu(state: str) -> str:
+def show_menu(state: str) -> None:
     '''Отобразить меню'''
     for n, action in menu[state].items():
         print(f'[{n}] {action}')

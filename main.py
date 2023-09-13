@@ -31,17 +31,21 @@ def main():
                     case 'Проект':
                         act = action(state)
                         state = menu[state][act]
+                
+                    case 'Договор':
+                        act = action(state)
+                        state = menu[state][act]
 
                     case 'Создать проект':
                         create_project(session)
                         state = 'Меню'
 
-                    case 'Договор':
-                        act = action(state)
-                        state = menu[state][act]
-
                     case 'Добавить договор в проект':
                         add_contract_to_project(session)
+                        state = 'Меню'
+
+                    case 'Завершить договор с выбором проекта':
+                        finalize_contract_from_project(session)
                         state = 'Меню'
 
                     case 'Создать договор':
@@ -58,15 +62,11 @@ def main():
                         finalize_contract(session)
                         state = 'Меню'
 
-                    case 'Завершить договор с выбором проекта':
-                        finalize_contract_from_project(session)
-                        state = 'Меню'
-
                     case 'Завершить работу':
                         break
                     
             except ValueError:
-                print('Ввод должен быть целым числом!')
+                print('Должно быть введено целое число!')
                 state = 'Меню'
             except AttributeError:
                 print('Введён несуществующий ID!')
