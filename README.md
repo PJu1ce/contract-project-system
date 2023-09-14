@@ -1,5 +1,5 @@
 # iCode_lab_test
- Project and Contract System – is a command line app to manage projects and contracts
+ Project and Contract System – is a command line app for projects and contracts managing
  ## How to start:
   1. Clone repository:  
    ```
